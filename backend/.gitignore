@@ -1,0 +1,32 @@
+# IDE
+.idea/
+.vs/
+.vscode/
+*.user
+*.suo
+*.sln.docstates
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build outputs
+**/bin/
+**/obj/
+
+# NuGet
+**/*.nupkg
+packages/
+
+# Logs
+*.log
+*.err
+
+# Config secrets / local overrides
+*.env
+*.env.*
+appsettings.*.local.*
+
+# Test results
+**/TestResults/
+**/coverage/
