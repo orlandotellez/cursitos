@@ -1,0 +1,908 @@
+// COMPLETE DATABASE SCHEMA
+// PostgreSQL - E-Learning Platform
+
+// ENUMS
+
+Enum user_role {
+  STUDENT
+  INSTRUCTOR
+  ADMIN
+  MODERATOR
+}
+
+Enum course_level {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
+Enum lesson_type {
+  VIDEO
+  TEXT
+  CODE
+  QUIZ
+  RESOURCE
+}
+
+Enum payment_status {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+Enum subscription_plan {
+  MONTHLY
+  ANNUAL
+  LIFETIME
+}
+
+// USERS & AUTH
+
+Table users [headercolor: #177a23] {
+  id uuid [pk, default: `uuid_generate_v4()`]
+
+  name text [not null]
+
+  email text [not null, unique]
+  email_verified boolean [not null, default: false]
+
+  phone text
+
+  image text
+
+  role user_role [not null, default: 'STUDENT']
+
+  username varchar(50) [unique]
+
+  bio text
+
+  website_url text
+  github_url text
+  linkedin_url text
+
+  stripe_customer_id varchar(100)
+
+  is_active boolean [not null, default: true]
+
+  last_seen_at timestamptz
+
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  deleted_at timestamptz
+
+  indexes {
+    email
+    username
+    role
+    stripe_customer_id
+    (created_at) [name: 'idx_users_created_at']
+  }
+}
+
+Table session [headercolor: #177a23] {
+  id uuid [pk, default: `uuid_generate_v4()`]
+
+  expires_at timestamptz [not null]
+
+  token text [not null, unique]
+
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+
+  ip_address text
+  user_agent text
+
+  user_id uuid [not null]
+
+  indexes {
+    token
+    user_id
+    expires_at
+  }
+}
+
+Table account [headercolor: #177a23] {
+  id uuid [pk, default: `uuid_generate_v4()`]
+
+  account_id text [not null]
+
+  provider_id text [not null]
+
+  user_id uuid [not null]
+
+  access_token text
+  refresh_token text
+  id_token text
+
+  access_token_expires_at timestamptz
+  refresh_token_expires_at timestamptz
+
+  scope text
+
+  password text
+
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    user_id
+    provider_id
+    account_id
+    (provider_id, account_id) [unique]
+  }
+}
+
+Table verification [headercolor: #177a23] {
+  id uuid [pk, default: `uuid_generate_v4()`]
+
+  identifier text [not null]
+
+  value text [not null]
+
+  expires_at timestamptz [not null]
+
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    identifier
+    value
+    expires_at
+  }
+}
+
+// OPTIONAL AUTH EXTENSIONS
+
+Table password_reset_logs [headercolor: #177a23] {
+  id uuid [pk, default: `uuid_generate_v4()`]
+
+  user_id uuid [not null]
+
+  ip_address text
+  user_agent text
+
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    user_id
+    created_at
+  }
+}
+
+Table email_verification_logs [headercolor: #177a23] {
+  id uuid [pk, default: `uuid_generate_v4()`]
+
+  user_id uuid [not null]
+
+  verified_at timestamptz [not null]
+
+  ip_address text
+
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    user_id
+    verified_at
+  }
+}
+
+Table user_two_factor [headercolor: #177a23] {
+  id uuid [pk, default: `uuid_generate_v4()`]
+
+  user_id uuid [not null]
+
+  secret text [not null]
+
+  backup_codes text[]
+
+  is_enabled boolean [not null, default: false]
+
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    user_id
+  }
+}
+
+Table login_logs [headercolor: #177a23] {
+  id uuid [pk, default: `uuid_generate_v4()`]
+
+  user_id uuid
+
+  email text
+
+  success boolean [not null]
+
+  provider_id text
+
+  ip_address text
+  user_agent text
+
+  failure_reason text
+
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    user_id
+    email
+    success
+    created_at
+  }
+}
+
+// CATEGORIES & TAGS
+
+Table categories [headercolor: #177a23] {
+  id uuid [pk, default: `uuid_generate_v4()`]
+
+  name varchar(100) [not null]
+
+  slug varchar(100) [not null, unique]
+
+  description text
+
+  icon_name varchar(100)
+
+  color varchar(50)
+
+  parent_id uuid
+
+  sort_order int [not null, default: 0]
+
+  is_active boolean [not null, default: true]
+
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  deleted_at timestamptz
+
+  indexes {
+    slug
+    parent_id
+    is_active
+  }
+}
+
+Table tags [headercolor: #177a23] {
+  id uuid [pk, default: `uuid_generate_v4()`]
+
+  name varchar(100) [not null]
+
+  slug varchar(100) [not null, unique]
+
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    slug
+  }
+}
+
+// COURSES
+
+Table courses [headercolor: #177a23] {
+  id uuid [pk, default: `uuid_generate_v4()`]
+
+  instructor_id uuid [not null]
+
+  category_id uuid [not null]
+
+  title varchar(255) [not null]
+
+  slug varchar(255) [not null, unique]
+
+  short_description varchar(500)
+
+  description text
+
+  thumbnail_url text
+
+  preview_video_url text
+
+  level course_level [not null]
+
+  language varchar(10) [not null, default: 'es']
+
+  duration_minutes int [not null, default: 0]
+
+  students_count int [not null, default: 0]
+
+  average_rating decimal(3,2) [not null, default: 0]
+
+  reviews_count int [not null, default: 0]
+
+  price decimal(10,2) [not null, default: 0]
+
+  original_price decimal(10,2)
+
+  is_free boolean [not null, default: false]
+
+  is_published boolean [not null, default: false]
+
+  is_featured boolean [not null, default: false]
+
+  requirements text[]
+
+  learning_objectives text[]
+
+  search_vector tsvector
+
+  published_at timestamptz
+
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  deleted_at timestamptz
+
+  indexes {
+    slug
+    instructor_id
+    category_id
+    is_published
+    is_featured
+    search_vector [type: gin]
+  }
+}
+
+Table course_tags [headercolor: #177a23] {
+  course_id uuid [not null]
+
+  tag_id uuid [not null]
+
+  indexes {
+    (course_id, tag_id) [pk]
+    course_id
+    tag_id
+  }
+}
+
+// MODULES & LESSONS
+
+Table modules [headercolor: #177a23] {
+  id uuid [pk, default: `uuid_generate_v4()`]
+
+  course_id uuid [not null]
+
+  title varchar(255) [not null]
+
+  description text
+
+  sort_order int [not null, default: 0]
+
+  is_published boolean [not null, default: false]
+
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  deleted_at timestamptz
+
+  indexes {
+    course_id
+  }
+}
+
+Table lessons [headercolor: #177a23] {
+  id uuid [pk, default: `uuid_generate_v4()`]
+
+  module_id uuid [not null]
+
+  course_id uuid [not null]
+
+  title varchar(255) [not null]
+
+  slug varchar(255) [not null]
+
+  type lesson_type [not null]
+
+  video_url text
+
+  video_duration_seconds int
+
+  content_markdown text
+
+  sort_order int [not null, default: 0]
+
+  is_published boolean [not null, default: false]
+
+  is_preview boolean [not null, default: false]
+
+  attachment_urls text[]
+
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  deleted_at timestamptz
+
+  indexes {
+    module_id
+    course_id
+    slug
+    type
+  }
+}
+
+// ENROLLMENTS & PROGRESS
+
+Table enrollments [headercolor: #177a23] {
+  id uuid [pk, default: `uuid_generate_v4()`]
+
+  user_id uuid [not null]
+
+  course_id uuid [not null]
+
+  payment_id uuid
+
+  enrolled_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+
+  completed_at timestamptz
+
+  progress_percentage decimal(5,2) [not null, default: 0]
+
+  last_accessed_at timestamptz
+
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  deleted_at timestamptz
+
+  indexes {
+    user_id
+    course_id
+    payment_id
+    (user_id, course_id) [unique]
+  }
+}
+
+Table lesson_progress [headercolor: #177a23] {
+  id uuid [pk, default: `uuid_generate_v4()`]
+
+  user_id uuid [not null]
+
+  lesson_id uuid [not null]
+
+  is_completed boolean [not null, default: false]
+
+  watched_seconds int [not null, default: 0]
+
+  last_position_seconds int [not null, default: 0]
+
+  updated_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    user_id
+    lesson_id
+    (user_id, lesson_id) [unique]
+  }
+}
+
+// QUIZZES
+
+Table quizzes [headercolor: #177a23] {
+  id uuid [pk, default: `uuid_generate_v4()`]
+
+  lesson_id uuid [not null]
+
+  title varchar(255) [not null]
+
+  passing_score int [not null, default: 70]
+
+  max_attempts int
+
+  time_limit_minutes int
+
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    lesson_id
+  }
+}
+
+Table quiz_questions [headercolor: #177a23] {
+  id uuid [pk, default: `uuid_generate_v4()`]
+
+  quiz_id uuid [not null]
+
+  text text [not null]
+
+  type varchar(50) [not null]
+
+  explanation text
+
+  sort_order int [not null, default: 0]
+
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    quiz_id
+  }
+}
+
+Table quiz_options [headercolor: #177a23] {
+  id uuid [pk, default: `uuid_generate_v4()`]
+
+  question_id uuid [not null]
+
+  text text [not null]
+
+  is_correct boolean [not null, default: false]
+
+  sort_order int [not null, default: 0]
+
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    question_id
+  }
+}
+
+Table quiz_attempts [headercolor: #177a23] {
+  id uuid [pk, default: `uuid_generate_v4()`]
+
+  quiz_id uuid [not null]
+
+  user_id uuid [not null]
+
+  score decimal(5,2)
+
+  is_passed boolean [not null, default: false]
+
+  time_spent_seconds int
+
+  started_at timestamptz
+
+  completed_at timestamptz
+
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    quiz_id
+    user_id
+  }
+}
+
+Table quiz_attempt_answers [headercolor: #177a23] {
+  id uuid [pk, default: `uuid_generate_v4()`]
+
+  attempt_id uuid [not null]
+
+  question_id uuid [not null]
+
+  selected_option_id uuid
+
+  code_answer text
+
+  is_correct boolean [not null, default: false]
+
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    attempt_id
+    question_id
+    selected_option_id
+  }
+}
+
+// PAYMENTS & SUBSCRIPTIONS
+
+Table payments [headercolor: #177a23] {
+  id uuid [pk, default: `uuid_generate_v4()`]
+
+  user_id uuid [not null]
+
+  course_id uuid
+
+  stripe_payment_intent_id varchar(255)
+
+  amount decimal(10,2) [not null]
+
+  currency varchar(10) [not null, default: 'USD']
+
+  status payment_status [not null]
+
+  type varchar(50)
+
+  paid_at timestamptz
+
+  refunded_at timestamptz
+
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    user_id
+    course_id
+    stripe_payment_intent_id
+    status
+  }
+}
+
+Table subscriptions [headercolor: #177a23] {
+  id uuid [pk, default: `uuid_generate_v4()`]
+
+  user_id uuid [not null]
+
+  stripe_subscription_id varchar(255)
+
+  plan subscription_plan [not null]
+
+  status varchar(50) [not null]
+
+  current_period_start timestamptz
+
+  current_period_end timestamptz
+
+  cancel_at_period_end boolean [not null, default: false]
+
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    user_id
+    stripe_subscription_id
+    status
+  }
+}
+
+// CERTIFICATES
+
+Table certificates [headercolor: #177a23] {
+  id uuid [pk, default: `uuid_generate_v4()`]
+
+  user_id uuid [not null]
+
+  course_id uuid [not null]
+
+  enrollment_id uuid [not null]
+
+  certificate_number varchar(100) [not null, unique]
+
+  pdf_url text
+
+  issued_at timestamptz [not null]
+
+  verification_url text
+
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    user_id
+    course_id
+    enrollment_id
+    certificate_number
+  }
+}
+
+// REVIEWS, COMMENTS, NOTIFICATIONS
+
+Table reviews [headercolor: #177a23] {
+  id uuid [pk, default: `uuid_generate_v4()`]
+
+  user_id uuid [not null]
+
+  course_id uuid [not null]
+
+  rating int [not null]
+
+  title varchar(255)
+
+  body text
+
+  helpful_count int [not null, default: 0]
+
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  deleted_at timestamptz
+
+  indexes {
+    user_id
+    course_id
+  }
+}
+
+Table comments [headercolor: #177a23] {
+  id uuid [pk, default: `uuid_generate_v4()`]
+
+  lesson_id uuid [not null]
+
+  user_id uuid [not null]
+
+  parent_id uuid
+
+  body text [not null]
+
+  likes_count int [not null, default: 0]
+
+  is_edited boolean [not null, default: false]
+
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  deleted_at timestamptz
+
+  indexes {
+    lesson_id
+    user_id
+    parent_id
+  }
+}
+
+Table notifications [headercolor: #177a23] {
+  id uuid [pk, default: `uuid_generate_v4()`]
+
+  user_id uuid [not null]
+
+  type varchar(100) [not null]
+
+  title varchar(255) [not null]
+
+  body text [not null]
+
+  image_url text
+
+  action_url text
+
+  is_read boolean [not null, default: false]
+
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    user_id
+    type
+    is_read
+  }
+}
+
+// NOTES, BOOKMARKS, AUDIT
+
+Table lesson_notes [headercolor: #177a23] {
+  id uuid [pk, default: `uuid_generate_v4()`]
+
+  user_id uuid [not null]
+
+  lesson_id uuid [not null]
+
+  content text [not null]
+
+  video_timestamp_seconds int
+
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    user_id
+    lesson_id
+  }
+}
+
+Table bookmarks [headercolor: #177a23] {
+  user_id uuid [not null]
+
+  course_id uuid [not null]
+
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    (user_id, course_id) [pk]
+    user_id
+    course_id
+  }
+}
+
+Table audit_logs [headercolor: #177a23] {
+  id uuid [pk, default: `uuid_generate_v4()`]
+
+  user_id uuid
+
+  action varchar(255) [not null]
+
+  entity_type varchar(255) [not null]
+
+  entity_id uuid
+
+  old_values jsonb
+
+  new_values jsonb
+
+  ip_address varchar(45)
+
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    user_id
+    entity_type
+    entity_id
+    created_at
+  }
+}
+
+// RELATIONSHIPS
+
+Ref: session.user_id > users.id [delete: cascade]
+
+Ref: account.user_id > users.id [delete: cascade]
+
+Ref: password_reset_logs.user_id > users.id [delete: cascade]
+
+Ref: email_verification_logs.user_id > users.id [delete: cascade]
+
+Ref: user_two_factor.user_id > users.id [delete: cascade]
+
+Ref: login_logs.user_id > users.id [delete: set null]
+
+Ref: categories.parent_id > categories.id
+
+Ref: courses.instructor_id > users.id
+
+Ref: courses.category_id > categories.id
+
+Ref: course_tags.course_id > courses.id
+
+Ref: course_tags.tag_id > tags.id
+
+Ref: modules.course_id > courses.id
+
+Ref: lessons.module_id > modules.id
+
+Ref: lessons.course_id > courses.id
+
+Ref: enrollments.user_id > users.id
+
+Ref: enrollments.course_id > courses.id
+
+Ref: enrollments.payment_id > payments.id
+
+Ref: lesson_progress.user_id > users.id
+
+Ref: lesson_progress.lesson_id > lessons.id
+
+Ref: quizzes.lesson_id > lessons.id
+
+Ref: quiz_questions.quiz_id > quizzes.id
+
+Ref: quiz_options.question_id > quiz_questions.id
+
+Ref: quiz_attempts.quiz_id > quizzes.id
+
+Ref: quiz_attempts.user_id > users.id
+
+Ref: quiz_attempt_answers.attempt_id > quiz_attempts.id
+
+Ref: quiz_attempt_answers.question_id > quiz_questions.id
+
+Ref: quiz_attempt_answers.selected_option_id > quiz_options.id
+
+Ref: payments.user_id > users.id
+
+Ref: payments.course_id > courses.id
+
+Ref: subscriptions.user_id > users.id
+
+Ref: certificates.user_id > users.id
+
+Ref: certificates.course_id > courses.id
+
+Ref: certificates.enrollment_id > enrollments.id
+
+Ref: reviews.user_id > users.id
+
+Ref: reviews.course_id > courses.id
+
+Ref: comments.lesson_id > lessons.id
+
+Ref: comments.user_id > users.id
+
+Ref: comments.parent_id > comments.id
+
+Ref: notifications.user_id > users.id
+
+Ref: lesson_notes.user_id > users.id
+
+Ref: lesson_notes.lesson_id > lessons.id
+
+Ref: bookmarks.user_id > users.id
+
+Ref: bookmarks.course_id > courses.id
+
+Ref: audit_logs.user_id > users.id

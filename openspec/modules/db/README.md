@@ -1,8 +1,22 @@
 # Database Module
 
-Base de datos PostgreSQL de NEXORA.
+Esquema y configuración de la base de datos PostgreSQL de CURSINET.
 
-## Contents
+## Contenido
 
-1. [01-schema](./01-schema.md) — Esquema SQL completo
-2. [02-setup](./02-setup.md) — Setup local y variables de entorno
+| Archivo | Descripción |
+|---------|-------------|
+| [diagram.dbml](./diagram.dbml) | Diagrama DBML completo — fuente de verdad de relaciones |
+| [01-schema.md](./01-schema.md) | Documentación completa del schema: tablas, columnas, enums, índices y relaciones |
+| [02-setup.md](./02-setup.md) | Guía de setup local: Docker, migraciones, variables de entorno |
+| [03-use-cases.md](./03-use-cases.md) | Casos de uso con diagramas Mermaid de flujos funcionales |
+
+## Stack
+
+| Componente | Tecnología |
+|------------|------------|
+| Motor | PostgreSQL 16 |
+| ORM | Entity Framework Core 9 |
+| Extensiones | `uuid-ossp` (UUIDs), full-text search (GIN + tsvector) |
+| Migraciones | EF Core migrations |
+| Infraestructura | Docker + Docker Compose |
