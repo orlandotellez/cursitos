@@ -1,13 +1,13 @@
-# Arquitectura ASP.NET Core - Nexora API
+# Arquitectura ASP.NET Core - Cursinet API
 
 Este documento adapta la arquitectura Fastify a ASP.NET Core manteniendo los mismos patrones de Clean Architecture y funcionalidad.
 
 ## Estructura del Proyecto
 
 ```
-Nexora.Api/
+Api/
 ├── src/
-│   ├── Nexora.Domain/
+│   ├── Domain/
 │   │   ├── Entities/
 │   │   │   ├── User.cs
 │   │   │   ├── Account.cs
@@ -19,7 +19,7 @@ Nexora.Api/
 │   │   └── Exceptions/
 │   │       └── AppException.cs
 │   │
-│   ├── Nexora.Application/
+│   ├── Application/
 │   │   ├── Common/
 │   │   │   ├── Interfaces/
 │   │   │   │   ├── IUserRepository.cs
@@ -42,7 +42,7 @@ Nexora.Api/
 │   │               ├── GetUserSessionsQuery.cs
 │   │               └── RevokeSessionQuery.cs
 │   │
-│   ├── Nexora.Infrastructure/
+│   ├── Infrastructure/
 │   │   ├── Persistence/
 │   │   │   ├── ApplicationDbContext.cs
 │   │   │   ├── Configurations/
@@ -58,7 +58,7 @@ Nexora.Api/
 │   │       ├── TokenService.cs
 │   │       └── PasswordService.cs
 │   │
-│   └── Nexora.Api/
+│   └── Api/
 │       ├── Controllers/
 │       │   └── AuthController.cs
 │       ├── DTOs/
@@ -103,7 +103,7 @@ Nexora.Api/
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Host=localhost;Database=nexora;Username=postgres;Password=..."
+    "DefaultConnection": "Host=localhost;Database=cursinet;Username=postgres;Password=..."
   },
   "Redis": {
     "Connection": "localhost:6379"
@@ -121,10 +121,10 @@ Nexora.Api/
 }
 ```
 
-### 2.3 src/Nexora.Domain/Enums/Role.cs
+### 2.3 src/Domain/Enums/Role.cs
 
 ```csharp
-namespace Nexora.Domain.Enums;
+namespace Cursinet.Domain.Enums;
 
 public enum Role
 {
@@ -135,12 +135,12 @@ public enum Role
 
 equivalent to Fastify's: `type Role = "admin" | "staff"`
 
-### 2.4 src/Nexora.Domain/Entities/User.cs
+### 2.4 src/Domain/Entities/User.cs
 
 ```csharp
-using Nexora.Domain.Enums;
+using Cursinet.Domain.Enums;
 
-namespace Nexora.Domain.Entities;
+namespace Cursinet.Domain.Entities;
 
 public class User
 {
@@ -163,12 +163,12 @@ public class User
 
 equivalent to: `IUserEntity` + Prisma generated types
 
-### 2.5 src/Nexora.Application/Common/Interfaces/IUserRepository.cs
+### 2.5 src/Application/Common/Interfaces/IUserRepository.cs
 
 ```csharp
-using Nexora.Domain.Entities;
+using Cursinet.Domain.Entities;
 
-namespace Nexora.Application.Common.Interfaces;
+namespace Cursinet.Application.Common.Interfaces;
 
 public interface IUserRepository
 {
@@ -184,12 +184,12 @@ equivalent to: `IUserRepository` in auth.interface.ts
 
 ## 3. Servicios de Autenticación
 
-### 3.1 src/Nexora.Infrastructure/Services/PasswordService.cs
+### 3.1 src/Infrastructure/Services/PasswordService.cs
 
 ```csharp
 using BCrypt.Net;
 
-namespace Nexora.Infrastructure.Services;
+namespace Cursinet.Infrastructure.Services;
 
 public interface IPasswordService
 {
@@ -213,16 +213,16 @@ public class PasswordService : IPasswordService
 
 equivalent to: `crypto.utils.ts` (hashPassword, comparePassword)
 
-### 3.2 src/Nexora.Infrastructure/Services/TokenService.cs
+### 3.2 src/Infrastructure/Services/TokenService.cs
 
 ```csharp
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
-using Nexora.Domain.Enums;
+using Cursinet.Domain.Enums;
 
-namespace Nexora.Infrastructure.Services;
+namespace Cursinet.Infrastructure.Services;
 
 public interface ITokenService
 {
@@ -269,8 +269,8 @@ public class TokenService : ITokenService
         };
 
         var token = new JwtSecurityToken(
-            issuer: "Nexora",
-            audience: "Nexora",
+            issuer: "Cursinet",
+            audience: "Cursinet",
             claims: claims,
             expires: DateTime.UtcNow.Add(expiry),
             signingCredentials: credentials
@@ -348,10 +348,10 @@ equivalent to: `cookie.utils.ts` (setAuthCookies, clearAuthCookies)
 
 ## 4. Errores Personalizados
 
-### 4.1 src/Nexora.Domain/Exceptions/AppException.cs
+### 4.1 src/Domain/Exceptions/AppException.cs
 
 ```csharp
-namespace Nexora.Domain.Exceptions;
+namespace Cursinet.Domain.Exceptions;
 
 public class AppException : Exception
 {
@@ -395,7 +395,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Security.Claims;
 
-namespace Nexora.Api.Filters;
+namespace Cursinet.Api.Filters;
 
 public class AuthGuardAttribute : ActionFilterAttribute
 {
@@ -428,13 +428,13 @@ equivalent to: `auth.guard.ts`
 
 ## 6. Repository Pattern
 
-### 6.1 src/Nexora.Infrastructure/Persistence/ApplicationDbContext.cs
+### 6.1 src/Infrastructure/Persistence/ApplicationDbContext.cs
 
 ```csharp
 using Microsoft.EntityFrameworkCore;
-using Nexora.Domain.Entities;
+using Cursinet.Domain.Entities;
 
-namespace Nexora.Infrastructure.Persistence;
+namespace Cursinet.Infrastructure.Persistence;
 
 public class ApplicationDbContext : DbContext
 {
@@ -461,9 +461,9 @@ public class ApplicationDbContext : DbContext
 ```csharp
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Nexora.Domain.Entities;
+using Cursinet.Domain.Entities;
 
-namespace Nexora.Infrastructure.Persistence.Configurations;
+namespace Cursinet.Infrastructure.Persistence.Configurations;
 
 public class UserConfiguration : IEntityTypeConfiguration<User>
 {
@@ -481,15 +481,15 @@ equivalent to: Prisma schema + mappers
 
 ## 7. Presentation Layer - Controllers
 
-### 7.1 src/Nexora.Api/Controllers/AuthController.cs
+### 7.1 src/Api/Controllers/AuthController.cs
 
 ```csharp
 using Microsoft.AspNetCore.Mvc;
-using Nexora.Api.DTOs;
-using Nexora.Application.Features.Auth.Commands;
-using Nexora.Application.Common.Interfaces;
+using Cursinet.Api.DTOs;
+using Cursinet.Application.Features.Auth.Commands;
+using Cursinet.Application.Common.Interfaces;
 
-namespace Nexora.Api.Controllers;
+namespace Cursinet.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/auth")]
@@ -561,7 +561,7 @@ public class AuthController : ControllerBase
 ### 7.2 DTOs
 
 ```csharp
-namespace Nexora.Api.DTOs;
+namespace Cursinet.Api.DTOs;
 
 public record RegisterRequest(string Name, string Email, string Password, string? Role = null);
 public record LoginRequest(string Email, string Password);
@@ -582,9 +582,9 @@ equivalent a: `auth.dto.ts` + `auth.types.ts`
 ```csharp
 using Serilog;
 using Microsoft.EntityFrameworkCore;
-using Nexora.Application.Common.Interfaces;
-using Nexora.Infrastructure.Persistence;
-using Nexora.Infrastructure.Services;
+using Cursinet.Application.Common.Interfaces;
+using Cursinet.Infrastructure.Persistence;
+using Cursinet.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -660,7 +660,7 @@ equivalent a: `app.ts` + `server.ts` combinados
 El servicio de autenticación equivalente a `auth.service.ts`:
 
 ```csharp
-// src/Nexora.Application/Features/Auth/AuthService.cs
+// src/Application/Features/Auth/AuthService.cs
 
 public interface IAuthService
 {
