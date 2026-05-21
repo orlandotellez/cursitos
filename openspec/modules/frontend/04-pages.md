@@ -1,100 +1,143 @@
 # Pages Detail
 
-Detalle de todas las páginas de NEXORA.
+Detalle de todas las páginas de NEXORA con su implementación según la arquitectura Feature-First + Container-Presentational.
+
+> **Patrón general**: Cada página usa un hook (container) para lógica + datos, y componentes presentacionales para UI.
+> Ver [`03-architecture.md`](./03-architecture.md) para los patrones completos.
 
 ---
 
 ## Landing Page (/)
 
-### Navbar
-- Fixed, background: `#020617/80` + backdrop-blur-md on scroll
-- Logo left: "N" icon + "NEXORA" text (Inter 700)
-- Center: Explorar · Cursos · Instructores · Precios
-- Right: Iniciar sesión (ghost) + Comenzar gratis (blue)
-- Mobile: hamburger → fullscreen drawer
+**Ruta**: `app/(public)/page.tsx`
+**Tipo**: Server Component (SEO critical)
+
+### Layout (app/(public)/layout.tsx)
+- Navbar + Footer componen el layout del grupo público
+- Navbar: fixed, `background: var(--bg-base)/80` + backdrop-blur-md on scroll
+- Logo: "N" icon + "NEXORA"
+- Nav: Explorar · Cursos · Instructores · Precios
 
 ### Hero Section
-Two-column (desktop). Left: text. Right: mockup/visual.
+Two-column (desktop). Left: text. Right: mockup.
 
-- **Badge**: "🎯 Plataforma de aprendizaje técnico" — blue border pill
-- **Headline** (Inter 700, 64px): "Aprende tecnología" / "construyendo sistemas" / "**reales.**"
-- **Subhead** (Inter 400, 20px, #94A3B8): "Cursos de backend, frontend, arquitectura y cloud..."
-- **CTAs**: "Explorar cursos" (blue) + "Ver demo gratis →" (ghost)
+- **Badge**: "Plataforma de aprendizaje técnico" — pill con borde azul
+- **Headline**: "Aprende tecnología construyendo sistemas **reales.**"
+- **Subhead**: "Cursos de backend, frontend, arquitectura y cloud..."
+- **CTAs**: "Explorar cursos" (primary) + "Ver demo gratis →" (ghost)
 - **Social proof**: Avatars + "Más de 12,000 estudiantes activos"
 
-### Stats Bar
-Dark surface (#0F172A). 4 stats: "12K+ Estudiantes" · "320+ Cursos" · "4.9 ★ Rating" · "95% Completitud"
+### Sections
+- **Stats Bar**: 4 stats (12K+ Estudiantes · 320+ Cursos · 4.9 ★ · 95% Completitud)
+- **Featured Courses**: Grid de `CourseCard` con thumbnail, badges, instructor, precio
+- **Categories Grid**: 8 categorías con icono + nombre
+- **Pricing**: Gratuito / Pro Mensual ($19/mes) / Pro Anual ($149/año) / Lifetime ($399)
+- **Footer**: 3-column: Logo + social | Nav | Newsletter
 
-### Featured Courses
-- Grid of CourseCards with thumbnail, category badge, level badge, title, instructor, rating, price
-- Hover: lift + thumbnail scale
+---
 
-### Categories Grid
-8 categories: icon + name + course count. Click → `/categorias/[slug]`
+## Course Catalog (/cursos)
 
-### Pricing Section
-- **Gratuito**: $0/mes — cursos gratuitos, progreso básico, comunidad
-- **Pro Mensual**: $19/mes — todo gratis + todos cursos, certificados, recursos
-- **Pro Anual**: $149/año — todo Pro + proyectos guiados, mentoría
-- **Lifetime**: $399 one-time — acceso de por vida
+**Ruta**: `app/(public)/cursos/page.tsx`
+**Tipo**: Server Component (SSR) + `useCourses` hook para filtros del lado cliente
 
-### Footer
-3-column: Logo + social | Nav links | Newsletter
+```typescript
+// La página server wrapper pasa props iniciales
+// El componente cliente (CourseCatalogClient) usa useCourses()
+export default function CatalogPage() {
+  return <CourseCatalogClient />;
+}
+
+// features/courses/components/CourseCatalogClient.tsx
+'use client';
+export function CourseCatalogClient() {
+  const { courses, loading, error, filters, setFilters } = useCourseCatalog();
+  // ... loading/error/empty/success states
+}
+```
 
 ---
 
 ## Course Detail (/cursos/[slug])
 
-- SSR + ISR (revalidate 3600)
-- Sticky top bar on mobile
+**Ruta**: `app/(public)/cursos/[slug]/page.tsx`
+**Tipo**: Server Component + ISR (revalidate: 3600)
 
-### Hero
-- Left: breadcrumb, title, description, rating, instructor, badges
-- Right: thumbnail/preview, price, "Inscribirse ahora" CTA, "Ver gratuito"
+### Hook: `useCourseDetail(slug)`
+Obtiene el curso, módulos, instructor y reseñas. Container que provee datos a los presentacionales.
 
-### Sections
-- **Lo que aprenderás**: 2-column checklist
-- **Contenido**: accordion módulos/lecciones, "Vista previa" badges, lock icons
-- **Instructor**: avatar, name, stats, bio
-- **Reviews**: rating breakdown, paginated list, write form
-- **Requirements**: bulleted list
+### UI Sections
+- **Hero**: breadcrumb, title, description, rating, instructor info, precio + CTA
+- **Lo que aprenderás**: checklist 2-columnas
+- **Contenido**: `CurriculumAccordion` — módulos expandibles con lecciones
+- **Instructor**: `InstructorBio` — avatar, name, stats, bio
+- **Reviews**: `ReviewSection` — rating breakdown, lista paginada, formulario
 
 ---
 
 ## Video Player (/aprender/[courseId]/[lessonId])
 
-### Layout
-Full-height. Sidebar (320px) + main content.
+**Ruta**: `app/(dashboard)/aprender/[courseId]/[lessonId]/page.tsx`
+**Tipo**: Client Component
 
-### Sidebar
-- Course title, progress bar
-- Accordion curriculum: modules collapse/expand
-- Each lesson: checkbox, title, type icon, duration
+### Layout
+Full-height dividido en Sidebar (320px) + Main content.
+
+### Sidebar (LessonSidebar)
+- Course title + progress bar
+- Accordion curriculum: módulos colapsables
+- Cada lección: checkbox de completado, tipo, duración
 
 ### Main Content
-
-**Video Player**:
+**Video Player** (features/player/components/VideoPlayer.tsx):
 - Custom controls: play/pause, scrubber, time, volume, speed, quality, fullscreen
-- Save progress: POST every 10s
+- Save progress cada 10s vía `useLessonProgress` hook
 - Auto-complete at 90% watched
 - Resume from last position
-- Keyboard shortcuts: Space, ←→, F, M, ↑↓
 
 **Tabs below video**:
-- **Descripción**: markdown render, nav buttons, complete button
-- **Comentarios**: form, threaded replies, likes
-- **Recursos**: download list
-- **Notas**: editor, timestamp button for video, export PDF
+- **Descripción**: markdown + navigation buttons + "Completar" button
+- **Comentarios**: `CommentsSection` con hilos anidados
+- **Recursos**: lista de descargas
+- **Notas**: `LessonNotes` — editor con timestamp bookmark
 
 **Lesson Types**:
-- TEXT: markdown with syntax highlighting (Shiki/Prism)
-- CODE: Monaco Editor lite
-- QUIZ: QuizPlayer
+- TEXT: markdown render
+- CODE: code block with syntax highlighting
+- QUIZ: QuizPlayer (ver abajo)
 - RESOURCE: preview + download
 
-### Quiz Player
+### Hook: `useLessonProgress`
+```typescript
+// features/player/hooks/useLessonProgress.ts
+export function useLessonProgress(lessonId: string, courseId: string) {
+  // Trackea watched_seconds, last_position, is_completed
+  // Envía updates cada 30s (video) o al navegar (texto)
+  // Calcula progreso total del curso
+  // Dispara completed_at cuando llega a 100%
+}
+```
+
+---
+
+## Quiz Player
+
+**Ruta**: Integrado dentro de `/aprender/[courseId]/[lessonId]` cuando `lesson.type === 'QUIZ'`
+**Tipo**: Client Component
+
+### Hook: `useQuiz(lessonId)`
+```typescript
+// features/quiz/hooks/useQuiz.ts
+export function useQuiz(lessonId: string) {
+  // Obtiene quiz + preguntas + opciones
+  // Maneja estado del intento actual
+  // Envía respuestas, calcula score, determina pass/fail
+}
+```
+
+### UI
 - Progress: "Pregunta 3 de 10"
-- Timer (if time-limited)
+- Timer (si tiene time limit)
 - Clickable answer cards
 - Results: score %, pass/fail, correct count, retry button
 
@@ -102,59 +145,68 @@ Full-height. Sidebar (320px) + main content.
 
 ## Student Dashboard (/dashboard)
 
+**Ruta**: `app/(dashboard)/dashboard/page.tsx`
+**Tipo**: Client Component
+
+### Hook: `useStudentDashboard()`
+Obtiene: cursos en progreso, estadísticas, certificados recientes.
+
 ### Widgets
 - **Welcome**: "Buenos días, {firstName}"
-- **Continue Learning**: 3 courses row with thumbnail, title, progress, "Continuar"
+- **Continue Learning**: 3 cursos con thumbnail, title, progress bar, "Continuar"
 - **Stats Row**: completados · lecciones · horas · racha
 - **Learning Streak**: GitHub-style heatmap 52×7
-- **Recent Certificates**: last 2 with download
+- **Recent Certificates**: last 2 with download button
 - **Upcoming**: bookmarked lessons
 
 ---
 
-## Instructor Panel (/instructor)
+## Instructor Panel (/instructor/*)
 
-### Dashboard
+**Ruta Group**: `(instructor)/instructor/*`
+**Tipo**: Client Component (todas las páginas del panel)
+
+### Dashboard (page.tsx)
+**Hook**: `useInstructorStats()` — KPIs, revenue chart, recent enrollments.
+
 - KPIs: students, revenue, courses, rating
-- Revenue chart (12 months)
+- Revenue chart (12 months) con recharts
 - Recent enrollments table
 
 ### Course Builder (/instructor/cursos/[id]/editar)
+**Hook**: `useCourseBuilder(courseId)` — maneja el estado del formulario multi-paso.
 
-**Step 1**: Basic info — title, slug, description, category, level, price, thumbnail, video, requirements, objectives
-
-**Step 2**: Curriculum — drag-drop modules/lessons, lesson editor (type-specific)
-
-**Step 3**: Pricing — free/price/subscription
-
-**Step 4**: Publish — checklist, preview, publish
-
-### Analytics (/instructor/cursos/[id]/analiticas)
-- Enrollments chart
-- Revenue chart
-- Completion rates
-- Quiz scores
-- Rating distribution
+Pasos:
+1. **Basic info**: title, slug, description, category, level, price, thumbnail, preview video, requirements, objectives
+2. **Curriculum**: drag-drop modules/lessons, lesson editor type-specific
+3. **Pricing**: free/price/subscription
+4. **Publish**: checklist, preview, publish
 
 ---
 
-## Admin Panel (/admin)
+## Admin Panel (/admin/*)
 
-### Dashboard
+**Ruta Group**: `(admin)/admin/*`
+**Tipo**: Client Component
+
+### Dashboard (page.tsx)
+**Hook**: `useAdminDashboard()`
 - KPIs: users, MRR, courses, sales
 - Revenue chart
 - Pending approvals
 
 ### User Management (/admin/usuarios)
-- Searchable table
-- Columns: avatar+name, email, role, status, courses, joined, actions
-- Actions: change role, suspend, delete, impersonate
+**Hook**: `useUsers()` — CRUD completo con filtros y paginación.
+- Searchable table: avatar+name, email, role, status, courses, joined, actions
+- Modals: EditUserModal (change role, suspend, delete)
 
 ### Course Management (/admin/cursos)
+**Hook**: `useAdminCourses()` — con tabs de estado.
 - Tabs: All · Published · Pending · Rejected · Deleted
 - Approve/Reject/Feature actions
 
 ### Analytics (/admin/analiticas)
+**Hook**: `useAdminAnalytics()`
 - Revenue: MRR, ARR, growth
 - Users: registrations, retention, active
-- Courses: categories, completion
+- Courses: categories, completion rates
