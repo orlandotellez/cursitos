@@ -1,0 +1,9 @@
+/home/davidzuniga/Escritorio/cursitos/backend/src/Api/obj/Debug/net10.0/Api.csproj.AssemblyReference.cache
+/home/davidzuniga/Escritorio/cursitos/backend/src/Api/obj/Debug/net10.0/rpswa.dswa.cache.json
+/home/davidzuniga/Escritorio/cursitos/backend/src/Api/obj/Debug/net10.0/Api.GeneratedMSBuildEditorConfig.editorconfig
+/home/davidzuniga/Escritorio/cursitos/backend/src/Api/obj/Debug/net10.0/Api.AssemblyInfoInputs.cache
+/home/davidzuniga/Escritorio/cursitos/backend/src/Api/obj/Debug/net10.0/Api.AssemblyInfo.cs
+/home/davidzuniga/Escritorio/cursitos/backend/src/Api/obj/Debug/net10.0/Api.csproj.CoreCompileInputs.cache
+/home/davidzuniga/Escritorio/cursitos/backend/src/Api/obj/Debug/net10.0/Api.MvcApplicationPartsAssemblyInfo.cs
+/home/davidzuniga/Escritorio/cursitos/backend/src/Api/obj/Debug/net10.0/Api.MvcApplicationPartsAssemblyInfo.cache
+/home/davidzuniga/Escritorio/cursitos/backend/src/Api/obj/Debug/net10.0/Api.sourcelink.json
