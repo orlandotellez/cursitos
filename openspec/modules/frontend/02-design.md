@@ -1,6 +1,8 @@
 # Design Identity
 
-Identidad visual de NEXORA.
+Identidad visual de CURSINET.
+
+---
 
 ## Philosophy
 
@@ -8,12 +10,6 @@ Identidad visual de NEXORA.
 
 This is a platform **FOR engineers**, built to feel like engineering tooling.
 Not colorful, not playful, not childish. **Serious, fast, premium.**
-
-## Approach
-
-- Think Platzi meets Linear in terms of quality
-- Full stack, no mocks, no placeholders
-- Everything persists in PostgreSQL and works end to end
 
 ## Color Palette
 
@@ -83,6 +79,46 @@ import { Geist, Inter, JetBrains_Mono } from 'next/font/google'
 | Shadows | Only on modals/dropdowns |
 | Hover animation | 150ms ease |
 | Panel animation | 250ms ease-out |
+
+## Implementation with CSS Modules
+
+Las variables de diseño se definen en `globals.css` como custom properties de CSS:
+
+```css
+/* app/globals.css */
+:root {
+  --bg-base: #020617;
+  --bg-surface: #0F172A;
+  --bg-card: #111827;
+  --bg-elevated: #1E293B;
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+  --accent: #2563EB;
+  --accent-hover: #1D4ED8;
+  --border: #1E293B;
+  --border-strong: #334155;
+  --success: #16A34A;
+  --danger: #DC2626;
+}
+```
+
+Y se usan desde CSS Modules:
+
+```css
+/* Component.module.css */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 24px;
+}
+
+.title {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+```
 
 ## No Gradients
 
