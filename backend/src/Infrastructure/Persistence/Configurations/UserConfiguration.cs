@@ -1,0 +1,56 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Cursinet.Domain.Entities;
+using Cursinet.Domain.Enums;
+
+namespace Cursinet.Infrastructure.Persistence.Configurations;
+
+public class UserConfiguration : IEntityTypeConfiguration<User>
+{
+	public void Configure(EntityTypeBuilder<User> builder)
+	{
+		// Nombre que le daremos a la tabla
+		builder.ToTable("Users");
+
+		// Configuraciones de campos de la tabla Users
+		builder.HasKey(u => u.Id);
+		builder.Property(u => u.Id).HasDefaultValueSql("uuid_generate_v4()");
+
+		builder.Property(u => u.Name).IsRequired().HasColumnName("name").HasMaxLength(255);
+
+		builder.Property(u => u.Email).IsRequired().HasColumnName("email").HasMaxLength(255);
+		builder.HasIndex(u => u.Email).IsUnique();
+		builder.Property(u => u.EmailVerified).HasColumnName("email_verified").HasDefaultValue(false);
+
+		builder.Property(u => u.Phone).HasColumnName("phone");
+
+		builder.Property(u => u.Image).HasColumnName("image");
+
+		builder.Property(u => u.Role).HasColumnName("role").HasConversion<int>().HasDefaultValue(UserRole.Student);
+
+		builder.Property(u => u.UserName).HasColumnName("username").HasMaxLength(50);
+		builder.HasIndex(u => u.UserName).IsUnique();
+
+		builder.Property(u => u.Bio).HasColumnName("bio");
+
+		builder.Property(u => u.WebsiteUrl).HasColumnName("website_url");
+
+		builder.Property(u => u.GithubUrl).HasColumnName("github_url");
+
+		builder.Property(u => u.LinkedinUrl).HasColumnName("linkedin_url");
+
+		builder.Property(u => u.StripeCustomerId).HasColumnName("stripe_customer_id").HasMaxLength(100);
+		builder.HasIndex(u => u.StripeCustomerId);
+
+		builder.Property(u => u.IsActive).HasColumnName("is_active").HasDefaultValue(true);
+
+		builder.Property(u => u.LastSeenAt).HasColumnName("last_seen_at");
+
+		builder.HasIndex(u => u.Role);
+		builder.HasIndex(u => u.CreatedAt).HasDatabaseName("idx_users_created_at");
+
+		builder.Property(u => u.CreatedAt).IsRequired().HasColumnName("created_at").HasDefaultValueSql("CURRENT_TIMESTAMP");
+		builder.Property(u => u.UpdatedAt).IsRequired().HasColumnName("updated_at").HasDefaultValueSql("CURRENT_TIMESTAMP");
+		builder.Property(u => u.DeletedAt).HasColumnName("deleted_at");
+	}
+}
