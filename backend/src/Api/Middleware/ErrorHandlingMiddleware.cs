@@ -6,7 +6,7 @@ namespace Cursinet.Api.Middleware;
 
 public class ErrorHandlingMiddleware
 {
-	// Declaración de variables privadas que vivirán durante la ejecución del middleware
+    // Declaración de variables privadas que vivirán durante la ejecución del middleware
     private readonly RequestDelegate _next;
     private readonly ILogger<ErrorHandlingMiddleware> _logger;
 
@@ -17,12 +17,12 @@ public class ErrorHandlingMiddleware
         _logger = logger;
     }
 
-	// Método que se ejecutará por cada petición Http
+    // Método que se ejecutará por cada petición Http
     public async Task InvokeAsync(HttpContext context)
     {
         try
         {
-            await _next(context); 
+            await _next(context);
         }
         catch (Exception ex)
         {
@@ -31,22 +31,23 @@ public class ErrorHandlingMiddleware
             await HandleExceptionAsync(context, ex);
         }
     }
-	// Método estático que evalúa que tipo de error fué (404, 500, etc)
+    // Método estático que evalúa que tipo de error fué (404, 500, etc)
     private static Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
         context.Response.ContentType = "application/json";
-        
+
         // Aquí asignamos el código Http (404, 500, etc)
         context.Response.StatusCode = exception switch
         {
             AppException => (int)HttpStatusCode.BadRequest,
             _ => (int)HttpStatusCode.InternalServerError
-		};
-		
-		// Creamos un objeto con la propiedad error
+
+        };
+
+        // Creamos un objeto con la propiedad error
         var response = new { error = exception.Message };
 
-		// Convertimos la respuesta en un JSON
+        // Convertimos la respuesta en un JSON
         return context.Response.WriteAsync(JsonSerializer.Serialize(response));
     }
 }
