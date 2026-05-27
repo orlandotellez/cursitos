@@ -1,14 +1,22 @@
+using System.Text;
 using Cursinet.Api.Helpers;
 using Cursinet.Application.Common.Interfaces;
 using Cursinet.Application.Features.Auth;
 using Cursinet.Infrastructure.Persistence; 
-using Cursinet.Infrastructure.Persistence.Repositories; 
+using Cursinet.Infrastructure.Persistence.Repositories;
+using Cursinet.Infrastructure.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // REGISTRO DE SERVICIOS (Antes de builder.Build)
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+    });
 builder.Services.AddOpenApi();
 builder.Services.AddHttpContextAccessor();
 
@@ -23,18 +31,36 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString, b => b.MigrationsAssembly("Infrastructure")));
 
-// Servicio de Aplicación (Lógica de Negocio)
-builder.Services.AddScoped<IAuthService, AuthService>();
+// CONFIGURACIÓN DE JWT AUTHENTICATION
+var jwtSecret = builder.Configuration["Jwt:Secret"] 
+    ?? throw new InvalidOperationException("JWT Secret is not configured");
 
-// REPOSITORIOS REALES (Separados e independientes)
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero,
+        };
+    });
+
+builder.Services.AddAuthorization();
+
+// SERVICIOS DE APLICACIÓN E INFRAESTRUCTURA
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IPasswordService, PasswordService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
+
+// REPOSITORIOS
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<ISessionRepository, SessionRepository>();
-
-// TODO: hacer que no sea mock
-// Mocks temporales para que la migración y el DI container funcionen mientras no estén las implementaciones reales
-builder.Services.AddScoped<IPasswordService, TemporaryPasswordMock>();
-builder.Services.AddScoped<ITokenService, TemporaryTokenMock>();
+builder.Services.AddScoped<IVerificationRepository, VerificationRepository>();
 
 // CONSTRUCCIÓN DE LA APLICACIÓN
 var app = builder.Build();
@@ -47,6 +73,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
+app.UseAuthorization();
+
 // Enrutamiento de controladores (api/v1/auth/register, etc.)
 app.MapControllers();
 
@@ -54,19 +83,3 @@ app.MapControllers();
 app.MapGet("/health", () => "ok");
 
 app.Run();
-
-// TODO: hacer que no sea mock
-// CLASES TEMPORALES (MOCKS) SOLO PARA QUE LA MIGRACIÓN COMPILE Y DETECTE EF
-public class TemporaryPasswordMock : IPasswordService
-{
-    public string HashPassword(string password) => password; // No hace nada, solo devuelve el texto
-    public bool VerifyPassword(string password, string hashedPassword) => password == hashedPassword;
-}
-
-public class TemporaryTokenMock : ITokenService
-{
-    public (string accessToken, string refreshToken) GenerateTokens(Guid userId, string email, Cursinet.Domain.Enums.UserRole role)
-    {
-        return ("fake-access-token", "fake-refresh-token");
-    }
-}
