@@ -16,9 +16,9 @@ public class AuthService : IAuthService
     private readonly ISessionRepository _sessionRepository;
 
     public AuthService(
-        IUserRepository userRepository, 
-        IPasswordService passwordService,  
-        IAccountRepository accountRepository, 
+        IUserRepository userRepository,
+        IPasswordService passwordService,
+        IAccountRepository accountRepository,
         ITokenService tokenService,
         ISessionRepository sessionRepository)
     {
@@ -37,7 +37,7 @@ public class AuthService : IAuthService
 
         // Hashear password
         var hashedPassword = _passwordService.HashPassword(request.Password);
-        
+
         // Crear usuario 
         var user = new User
         {
@@ -51,7 +51,7 @@ public class AuthService : IAuthService
         };
 
         user = await _userRepository.CreateAsync(user);
-        
+
         // Crear cuenta credentials
         var account = new Account
         {
@@ -63,12 +63,12 @@ public class AuthService : IAuthService
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
         };
-        
+
         await _accountRepository.CreateAsync(account);
-        
+
         // Generar tokens
         var (accessToken, refreshToken) = _tokenService.GenerateTokens(user.Id, user.Email, user.Role);
-        
+
         // Crear sesión
         var session = new Session
         {
@@ -79,7 +79,7 @@ public class AuthService : IAuthService
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
         };
-        
+
         await _sessionRepository.CreateAsync(session);
 
         var response = new AuthResponse
@@ -88,6 +88,53 @@ public class AuthService : IAuthService
             User = user.MapUserToDto(),
             AccessToken = accessToken,
             RefreshToken = refreshToken
+        };
+
+        return response;
+    }
+
+    public async Task<AuthResponse> LoginAsync(LoginRequest request)
+    {
+        // Buscar cuenta credentials por email
+        var account = await _accountRepository.GetCredentialsByEmailAsync(request.Email);
+        if (account == null) throw AppExceptions.Unauthorized("Invalid credentials");
+
+        // Verificar password
+        if (account.Password == null || !_passwordService.VerifyPassword(request.Password, account.Password))
+            throw AppExceptions.Unauthorized("Invalid credentials");
+
+        // Obtener usuario
+        if (account.UserId == null) throw AppExceptions.Unauthorized("Invalid credentials");
+
+        var user = await _userRepository.GetByIdAsync(account.UserId);
+        if (user == null) throw AppExceptions.Unauthorized("User not found");
+
+        // Verificar soft delete
+        if (user.DeletedAt != null) throw AppExceptions.Unauthorized("Account has been deactivated");
+
+        // Generar tokens
+        var (accessToken, refreshToken) = _tokenService.GenerateTokens(user.Id, user.Email, user.Role);
+
+        // Crear sesión
+        var session = new Session
+        {
+            Id = Guid.NewGuid(),
+            UserId = user.Id,
+            Token = refreshToken,
+            ExpiresAt = DateTime.UtcNow.AddDays(7),
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        await _sessionRepository.CreateAsync(session);
+
+        var response = new AuthResponse
+        {
+            Message = "Login successful",
+            User = user.MapUserToDto(),
+            AccessToken = accessToken,
+            RefreshToken = refreshToken
+
         };
 
         return response;
