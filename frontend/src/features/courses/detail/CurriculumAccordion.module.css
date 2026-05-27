@@ -1,0 +1,158 @@
+.accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.accordionItem {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  transition: border-color var(--transition-fast);
+}
+
+.accordionItemOpen {
+  border-color: var(--border-strong);
+}
+
+.accordionTrigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 16px 20px;
+  color: var(--text-primary);
+  transition: background var(--transition-fast);
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.accordionTrigger:hover {
+  background: var(--bg-elevated);
+}
+
+.accordionTriggerLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.accordionTriggerLeft svg {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.accordionTitle {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.accordionTriggerRight {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.accordionLessons {
+  font-size: 13px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.accordionChevron {
+  color: var(--text-muted);
+  transition: transform var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.accordionChevronOpen {
+  transform: rotate(180deg);
+}
+
+.accordionContent {
+  border-top: 1px solid var(--border);
+}
+
+.lessonRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 20px 12px 52px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  transition: background var(--transition-fast);
+}
+
+.lessonRow:hover {
+  background: var(--bg-elevated);
+}
+
+.lessonRow + .lessonRow,
+.lessonRowLink + .lessonRowLink,
+.lessonRowDisabled + .lessonRowDisabled {
+  border-top: 1px solid var(--border);
+}
+
+.lessonLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.lessonLeft svg {
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
+.lessonTitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lessonRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lessonDuration {
+  font-size: 13px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.lessonLock {
+  color: var(--text-disabled);
+  flex-shrink: 0;
+}
+
+.lessonPlayIcon {
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: color var(--transition-fast);
+}
+
+.lessonRowLink {
+  text-decoration: none;
+  display: block;
+  transition: background var(--transition-fast);
+}
+
+.lessonRowLink:hover {
+  background: var(--bg-hover);
+}
+
+.lessonRowLink:hover .lessonPlayIcon {
+  color: var(--accent);
+}
+
+.lessonRowDisabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
