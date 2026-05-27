@@ -15,7 +15,7 @@ public class AuthController : ControllerBase
     private readonly AuthHelper _authHelper;
     private readonly CookieHelper _cookieHelper;
 
-    public AuthController(IAuthService authService, IConfiguration configuration,  IWebHostEnvironment environment, AuthHelper authHelper, CookieHelper cookieHelper)
+    public AuthController(IAuthService authService, IConfiguration configuration, IWebHostEnvironment environment, AuthHelper authHelper, CookieHelper cookieHelper)
     {
         _authService = authService;
         _configuration = configuration;
@@ -35,7 +35,7 @@ public class AuthController : ControllerBase
         }
 
         var result = await _authService.RegisterAsync(request);
-        
+
         _cookieHelper.SetAuthCookies(result.AccessToken, result.RefreshToken);
 
         return CreatedAtAction(null, new
@@ -44,5 +44,26 @@ public class AuthController : ControllerBase
             user = result.User
         });
 
+    }
+
+    [HttpPost("login")]
+    public async Task<ActionResult<AuthResponse>> Login([FromBody] LoginRequest request)
+    {
+        var currentUserId = await _authHelper.ResolveCurrentUserId();
+
+        var result = await _authService.LoginAsync(request);
+
+        if (currentUserId.HasValue && currentUserId != result.User?.Id)
+        {
+            _cookieHelper.ClearAuthCookies();
+        }
+
+        _cookieHelper.SetAuthCookies(result.AccessToken, result.RefreshToken);
+
+        return Ok(new
+        {
+            message = result.Message,
+            user = result.User
+        });
     }
 }

@@ -35,3 +35,14 @@ Content-Type: application/json
   "password": "password123",
   "role": "instructor"
 }
+
+
+### Login
+
+POST {{Api_HostAddress}}/auth/Login HTTP/1.1
+Content-Type: application/json
+
+{
+  "email": "instructor2@agenciapro.com",
+  "password": "password123"
+}
