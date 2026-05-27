@@ -14,14 +14,22 @@ public class AuthController : ControllerBase
     private readonly IWebHostEnvironment _environment;
     private readonly AuthHelper _authHelper;
     private readonly CookieHelper _cookieHelper;
+    private readonly TokenHelper _tokenHelper;
 
-    public AuthController(IAuthService authService, IConfiguration configuration, IWebHostEnvironment environment, AuthHelper authHelper, CookieHelper cookieHelper)
+    public AuthController(
+        IAuthService authService,
+        IConfiguration configuration,
+        IWebHostEnvironment environment,
+        AuthHelper authHelper,
+        CookieHelper cookieHelper,
+        TokenHelper tokenHelper)
     {
         _authService = authService;
         _configuration = configuration;
         _environment = environment;
         _authHelper = authHelper;
         _cookieHelper = cookieHelper;
+        _tokenHelper = tokenHelper;
     }
 
     [HttpPost("register")]
@@ -65,5 +73,17 @@ public class AuthController : ControllerBase
             message = result.Message,
             user = result.User
         });
+    }
+
+    [HttpPost("logout")]
+    public async Task<ActionResult> Logout()
+    {
+        var refreshToken = _tokenHelper.GetRefreshToken();
+        if (!string.IsNullOrEmpty(refreshToken))
+        {
+            await _authService.LogoutAsync(refreshToken);
+        }
+        _cookieHelper.ClearAuthCookies();
+        return Ok(new { message = "Logged out successfully" });
     }
 }
