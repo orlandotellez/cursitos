@@ -7,160 +7,13 @@
   margin: 0 auto;
 }
 
-/* Header */
-.header {
-  margin-bottom: 32px;
-}
+/* ── Toolbar layout ── */
 
-.title {
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 8px;
-}
-
-@media (min-width: 640px) {
-  .title {
-    font-size: 32px;
-  }
-}
-
-.subtitle {
-  font-size: 15px;
-  color: var(--text-secondary);
-}
-
-/* Toolbar */
 .toolbar {
   display: flex;
   flex-direction: column;
   gap: 16px;
   margin-bottom: 40px;
-}
-
-.searchWrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.searchIcon {
-  position: absolute;
-  left: 14px;
-  color: var(--text-muted);
-  pointer-events: none;
-}
-
-.searchInput {
-  width: 100%;
-  padding: 12px 40px 12px 44px;
-  font-size: 15px;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-input);
-  color: var(--text-primary);
-  transition: border-color var(--transition-fast);
-}
-
-.searchInput::placeholder {
-  color: var(--text-muted);
-}
-
-.searchInput:focus {
-  border-color: var(--accent);
-}
-
-.clearBtn {
-  position: absolute;
-  right: 12px;
-  color: var(--text-muted);
-  padding: 4px;
-  border-radius: var(--radius-badge);
-  transition: color var(--transition-fast);
-}
-
-.clearBtn:hover {
-  color: var(--text-primary);
-}
-
-.filterGroup {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  overflow-x: auto;
-  padding-bottom: 4px;
-}
-
-.filterIcon {
-  color: var(--text-muted);
-  flex-shrink: 0;
-}
-
-.chips {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.chip {
-  padding: 6px 14px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-secondary);
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 100px;
-  white-space: nowrap;
-  transition: border-color var(--transition-fast), color var(--transition-fast), background var(--transition-fast);
-}
-
-.chip:hover {
-  border-color: var(--border-strong);
-  color: var(--text-primary);
-}
-
-.chipActive {
-  background: var(--accent);
-  color: white;
-  border-color: var(--accent);
-}
-
-.chipActive:hover {
-  background: var(--accent-hover);
-  border-color: var(--accent-hover);
-}
-
-.levelGroup {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.levelBtn {
-  padding: 6px 14px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-secondary);
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-input);
-  transition: border-color var(--transition-fast), color var(--transition-fast), background var(--transition-fast);
-}
-
-.levelBtn:hover {
-  border-color: var(--border-strong);
-  color: var(--text-primary);
-}
-
-.levelBtnActive {
-  background: var(--accent);
-  color: white;
-  border-color: var(--accent);
-}
-
-.levelBtnActive:hover {
-  background: var(--accent-hover);
-  border-color: var(--accent-hover);
 }
 
 .clearAll {
@@ -176,6 +29,7 @@
   border-radius: var(--radius-input);
   width: fit-content;
   transition: color var(--transition-fast), border-color var(--transition-fast);
+  cursor: pointer;
 }
 
 .clearAll:hover {
@@ -183,68 +37,8 @@
   border-color: var(--danger);
 }
 
-/* Results grid */
+/* ── Results container ── */
+
 .results {
   min-height: 300px;
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 24px;
-}
-
-@media (min-width: 640px) {
-  .grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 1024px) {
-  .grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-/* Empty state */
-.empty {
-  text-align: center;
-  padding: 80px 24px;
-}
-
-.emptyIcon {
-  color: var(--text-disabled);
-  margin-bottom: 16px;
-}
-
-.emptyTitle {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 8px;
-}
-
-.emptyText {
-  font-size: 15px;
-  color: var(--text-secondary);
-  margin-bottom: 24px;
-  max-width: 400px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.emptyBtn {
-  display: inline-flex;
-  align-items: center;
-  padding: 10px 20px;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-primary);
-  background: var(--accent);
-  border-radius: var(--radius-input);
-  transition: background var(--transition-fast);
-}
-
-.emptyBtn:hover {
-  background: var(--accent-hover);
 }

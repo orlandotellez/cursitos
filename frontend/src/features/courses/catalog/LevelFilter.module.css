@@ -1,0 +1,36 @@
+.levelGroup {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.levelBtn {
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-input);
+  transition:
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    background var(--transition-fast);
+  cursor: pointer;
+}
+
+.levelBtn:hover {
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+.levelBtnActive {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.levelBtnActive:hover {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
