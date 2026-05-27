@@ -15,7 +15,7 @@ public class PasswordResetLogsConfiguration : IEntityTypeConfiguration<PasswordR
 		builder.HasKey(p => p.Id);
 		builder.Property(p => p.Id).HasColumnName("id").HasDefaultValueSql("uuid_generate_v4()");
 
-		builder.Property(p => p.UserId).HasColumnName("user_id");
+		builder.Property(p => p.UserId).HasColumnName("user_id").IsRequired();
 		builder.HasIndex(p => p.UserId);
 		// Relación con la tabla de usuarios
 		builder.HasOne(p => p.User)
@@ -27,7 +27,7 @@ public class PasswordResetLogsConfiguration : IEntityTypeConfiguration<PasswordR
 
 		builder.Property(p => p.UserAgent).HasColumnName("user_agent");
 
-		builder.Property(p => p.CreatedAt).HasColumnName("created_at");
+		builder.Property(p => p.CreatedAt).HasColumnName("created_at").IsRequired();
 		builder.HasIndex(p => p.CreatedAt);
 	}
 }
