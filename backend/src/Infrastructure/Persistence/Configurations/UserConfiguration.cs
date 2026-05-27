@@ -20,13 +20,13 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
 		builder.Property(u => u.Email).IsRequired().HasColumnName("email").HasMaxLength(255);
 		builder.HasIndex(u => u.Email).IsUnique();
-		builder.Property(u => u.EmailVerified).HasColumnName("email_verified").HasDefaultValue(false);
+		builder.Property(u => u.EmailVerified).HasColumnName("email_verified").IsRequired().HasDefaultValue(false);
 
 		builder.Property(u => u.Phone).HasColumnName("phone");
 
 		builder.Property(u => u.Image).HasColumnName("image");
 
-		builder.Property(u => u.Role).HasColumnName("role").HasConversion<int>().HasDefaultValue(UserRole.Student);
+		builder.Property(u => u.Role).HasColumnName("role").IsRequired().HasDefaultValue(UserRole.Student);
 
 		builder.Property(u => u.UserName).HasColumnName("username").HasMaxLength(50);
 		builder.HasIndex(u => u.UserName).IsUnique();
@@ -42,7 +42,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 		builder.Property(u => u.StripeCustomerId).HasColumnName("stripe_customer_id").HasMaxLength(100);
 		builder.HasIndex(u => u.StripeCustomerId);
 
-		builder.Property(u => u.IsActive).HasColumnName("is_active").HasDefaultValue(true);
+		builder.Property(u => u.IsActive).HasColumnName("is_active").IsRequired().HasDefaultValue(true);
 
 		builder.Property(u => u.LastSeenAt).HasColumnName("last_seen_at");
 
