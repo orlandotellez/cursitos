@@ -20,9 +20,10 @@ builder.Services.AddControllers()
 builder.Services.AddOpenApi();
 builder.Services.AddHttpContextAccessor();
 
-// Helpers de Autenticación y Cookies
+// Helpers de Autenticación, Cookies y Tokens
 builder.Services.AddScoped<AuthHelper>();
 builder.Services.AddScoped<CookieHelper>();
+builder.Services.AddScoped<TokenHelper>();
 
 // CONFIGURACIÓN DE ENTITY FRAMEWORK CORE
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
