@@ -1,0 +1,30 @@
+.learnGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .learnGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.learnItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.learnIcon {
+  color: var(--success);
+  flex-shrink: 0;
+  margin-top: 1px;
+}

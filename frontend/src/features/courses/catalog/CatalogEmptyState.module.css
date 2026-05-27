@@ -1,0 +1,43 @@
+.empty {
+  text-align: center;
+  padding: 80px 24px;
+}
+
+.emptyIcon {
+  color: var(--text-disabled);
+  margin-bottom: 16px;
+}
+
+.emptyTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.emptyText {
+  font-size: 15px;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.emptyBtn {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  background: var(--accent);
+  border-radius: var(--radius-input);
+  transition: background var(--transition-fast);
+  border: none;
+  cursor: pointer;
+}
+
+.emptyBtn:hover {
+  background: var(--accent-hover);
+}

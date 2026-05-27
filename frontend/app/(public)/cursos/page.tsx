@@ -1,8 +1,13 @@
 'use client';
 
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
-import { Search, SlidersHorizontal, X } from 'lucide-react';
-import { CourseCard } from '@/src/features/courses/components/CourseCard';
+import { X } from 'lucide-react';
+import { CatalogHeader } from '@/src/features/courses/catalog/CatalogHeader';
+import { SearchInput } from '@/src/features/courses/catalog/SearchInput';
+import { CategoryFilter } from '@/src/features/courses/catalog/CategoryFilter';
+import { LevelFilter } from '@/src/features/courses/catalog/LevelFilter';
+import { CourseGrid } from '@/src/features/courses/catalog/CourseGrid';
+import { CatalogEmptyState } from '@/src/features/courses/catalog/CatalogEmptyState';
 import { allCourseCards, categories } from '@/src/features/courses/data';
 import type { Level } from '@/src/shared/types';
 import styles from './page.module.css';
@@ -52,61 +57,20 @@ export default function CatalogPage() {
   return (
     <div className={styles.page}>
       <div className={styles.container}>
-        {/* Header */}
-        <div className={styles.header}>
-          <h1 className={styles.title}>Catálogo de cursos</h1>
-          <p className={styles.subtitle}>
-            {filtered.length} curso{filtered.length !== 1 ? 's' : ''} disponible{filtered.length !== 1 ? 's' : ''}
-          </p>
-        </div>
+        <CatalogHeader totalCount={filtered.length} />
 
-        {/* Search + filters */}
         <div className={styles.toolbar}>
-          <div className={styles.searchWrapper}>
-            <Search size={18} className={styles.searchIcon} />
-            <input
-              ref={inputRef}
-              type="text"
-              placeholder="Buscar cursos..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className={styles.searchInput}
-            />
-            {search && (
-              <button className={styles.clearBtn} onClick={() => setSearch('')}>
-                <X size={16} />
-              </button>
-            )}
-          </div>
-
-          <div className={styles.filterGroup}>
-            <SlidersHorizontal size={16} className={styles.filterIcon} />
-            <div className={styles.chips}>
-              {categories.map((cat) => (
-                <button
-                  key={cat.id}
-                  className={`${styles.chip} ${selectedCategory === cat.name ? styles.chipActive : ''}`}
-                  onClick={() =>
-                    setSelectedCategory(selectedCategory === cat.name ? '' : cat.name)
-                  }
-                >
-                  {cat.name}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className={styles.levelGroup}>
-            {LEVELS.map((lvl) => (
-              <button
-                key={lvl.value}
-                className={`${styles.levelBtn} ${selectedLevel === lvl.value ? styles.levelBtnActive : ''}`}
-                onClick={() => setSelectedLevel(lvl.value as Level | '')}
-              >
-                {lvl.label}
-              </button>
-            ))}
-          </div>
+          <SearchInput value={search} onChange={setSearch} inputRef={inputRef} />
+          <CategoryFilter
+            categories={categories}
+            selected={selectedCategory}
+            onChange={setSelectedCategory}
+          />
+          <LevelFilter
+            levels={LEVELS}
+            selected={selectedLevel}
+            onChange={setSelectedLevel}
+          />
 
           {hasFilters && (
             <button className={styles.clearAll} onClick={clearFilters}>
@@ -116,25 +80,11 @@ export default function CatalogPage() {
           )}
         </div>
 
-        {/* Results */}
         <div className={styles.results}>
           {filtered.length > 0 ? (
-            <div className={styles.grid}>
-              {filtered.map((course) => (
-                <CourseCard key={course.id} course={course} />
-              ))}
-            </div>
+            <CourseGrid courses={filtered} />
           ) : (
-            <div className={styles.empty}>
-              <Search size={48} className={styles.emptyIcon} />
-              <h3 className={styles.emptyTitle}>Sin resultados</h3>
-              <p className={styles.emptyText}>
-                No encontramos cursos con esos filtros. Probá con otros términos.
-              </p>
-              <button className={styles.emptyBtn} onClick={clearFilters}>
-                Limpiar filtros
-              </button>
-            </div>
+            <CatalogEmptyState onClear={clearFilters} />
           )}
         </div>
       </div>

@@ -1,0 +1,30 @@
+.page {
+  padding: 100px 24px 80px;
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+/* ── Shared section layout ── */
+
+.section {
+  margin-bottom: 48px;
+}
+
+.sectionTitle {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 20px;
+}
+
+/* ── Curriculum hint ── */
+
+.curriculumHint {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
