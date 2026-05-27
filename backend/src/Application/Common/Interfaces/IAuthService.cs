@@ -7,7 +7,7 @@ public interface IAuthService
     Task<AuthResponse> RegisterAsync(RegisterRequest request);
     Task<AuthResponse> LoginAsync(LoginRequest request);
     // Task<RefreshResponse> RefreshAsync(string refreshToken);
-    //Task LogoutAsync(string refreshToken);
+    Task LogoutAsync(string refreshToken);
     //Task<AuthResponse> VerifyEmailAsync(string identifier, string code);
     //Task<ForgotPasswordResponse> ForgotPasswordAsync(string email);
     //Task<ResetPasswordResponse> ResetPasswordAsync(string email, string code, string newPassword);

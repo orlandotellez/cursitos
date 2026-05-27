@@ -139,4 +139,9 @@ public class AuthService : IAuthService
 
         return response;
     }
+
+    public async Task LogoutAsync(string refreshToken)
+    {
+        await _sessionRepository.DeleteAsync(refreshToken);
+    }
 }
