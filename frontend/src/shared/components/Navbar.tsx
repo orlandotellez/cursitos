@@ -6,7 +6,7 @@ import Link from 'next/link';
 import styles from './Navbar.module.css';
 
 const NAV_ITEMS = [
-  { label: 'Explorar', href: '/cursos' },
+  { label: 'Inicio', href: '/' },
   { label: 'Cursos', href: '/cursos' },
   { label: 'Instructores', href: '/instructores' },
   { label: 'Precios', href: '#pricing' },
