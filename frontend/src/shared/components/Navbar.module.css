@@ -7,6 +7,7 @@
   background: transparent;
   transition: background var(--transition-fast),
     backdrop-filter var(--transition-fast);
+  padding-inline: 20px;
 }
 
 .scrolled {
