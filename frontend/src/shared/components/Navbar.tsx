@@ -43,10 +43,10 @@ export function Navbar() {
         </ul>
 
         <div className={styles.actions}>
-          <Link href="/iniciar-sesion" className={styles.loginBtn}>
+          <Link href="/login" className={styles.loginBtn}>
             Iniciar sesión
           </Link>
-          <Link href="/registrarse" className={styles.signupBtn}>
+          <Link href="/register" className={styles.signupBtn}>
             Registrarse
           </Link>
           <button
