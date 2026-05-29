@@ -24,8 +24,8 @@ public class VerificationConfiguration : IEntityTypeConfiguration<Verification>
 		builder.Property(v => v.ExpiresAt).IsRequired().HasColumnName("expires_at");
 		builder.HasIndex(v => v.ExpiresAt);
 
-		builder.Property(v => v.CreatedAt).IsRequired().HasColumnName("created_at");
+		builder.Property(v => v.CreatedAt).IsRequired().HasDefaultValueSql("CURRENT_TIMESTAMP").HasColumnName("created_at");
 
-		builder.Property(v => v.UpdatedAt).IsRequired().HasColumnName("updated_at");
+		builder.Property(v => v.UpdatedAt).IsRequired().HasDefaultValueSql("CURRENT_TIMESTAMP").HasColumnName("updated_at");
 	}
 }
