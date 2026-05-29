@@ -28,7 +28,7 @@ public class EmailVerificationLogsConfiguration : IEntityTypeConfiguration<Email
 
 		builder.Property(e => e.IpAddress).HasColumnName("ip_address");
 
-		builder.Property(e => e.CreatedAt).HasColumnName("created_at").IsRequired();
+		builder.Property(e => e.CreatedAt).HasColumnName("created_at").IsRequired().HasDefaultValueSql("CURRENT_TIMESTAMP");
 
 	}
 }
