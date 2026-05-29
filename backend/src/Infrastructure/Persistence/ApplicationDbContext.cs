@@ -15,7 +15,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<Verification> Verifications => Set<Verification>();
     public DbSet<PasswordResetLogs> PasswordResetLogs => Set<PasswordResetLogs>();
     public DbSet<EmailVerificationLogs> EmailVerificationLogs => Set<EmailVerificationLogs>();
-
+    public DbSet<UserTwoFactor> UserTwoFactor => Set<UserTwoFactor>();
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
