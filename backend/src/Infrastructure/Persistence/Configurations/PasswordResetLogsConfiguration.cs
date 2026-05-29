@@ -27,7 +27,7 @@ public class PasswordResetLogsConfiguration : IEntityTypeConfiguration<PasswordR
 
 		builder.Property(p => p.UserAgent).HasColumnName("user_agent");
 
-		builder.Property(p => p.CreatedAt).HasColumnName("created_at").IsRequired();
+		builder.Property(p => p.CreatedAt).HasColumnName("created_at").IsRequired().HasDefaultValueSql("CURRENT_TIMESTAMP");
 		builder.HasIndex(p => p.CreatedAt);
 	}
 }
