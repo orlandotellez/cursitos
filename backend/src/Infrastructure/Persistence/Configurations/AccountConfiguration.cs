@@ -43,7 +43,7 @@ public class AccountConfiguration : IEntityTypeConfiguration<Account>
 
 		builder.Property(a => a.Password).HasColumnName("password");
 
-		builder.Property(a => a.CreatedAt).IsRequired().HasColumnName("created_at");
-		builder.Property(a => a.UpdatedAt).IsRequired().HasColumnName("updated_at");
+		builder.Property(a => a.CreatedAt).IsRequired().HasDefaultValueSql("CURRENT_TIMESTAMP").HasColumnName("created_at");
+		builder.Property(a => a.UpdatedAt).IsRequired().HasDefaultValueSql("CURRENT_TIMESTAMP").HasColumnName("updated_at");
 	}
 }
